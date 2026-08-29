@@ -1,0 +1,124 @@
+seed: 42
+
+data:
+  df1_path: "./data/df1.csv"
+  df2_path: "./data/df2.csv"
+  target_column: "target"
+
+  # Common aliases are normalized before feature selection.
+  aliases:
+    "heartdisease": "target"
+    "heart_disease": "target"
+    "output": "target"
+    "chol": "cholesterol"
+    "serum_cholesterol": "cholesterol"
+    "restingbp": "resting_bp"
+    "resting_bp_s": "resting_bp"
+    "fastingbs": "fasting_bs"
+    "restingecg": "resting_ecg"
+    "maxhr": "max_hr"
+    "exerciseangina": "exercise_angina"
+    "oldpeak": "oldpeak"
+    "st_slope": "st_slope"
+    "chestpaintype": "chest_pain_type"
+    "chest_pain": "chest_pain_type"
+
+  modalities:
+    clinical:
+      - chest_pain_type
+      - resting_bp
+      - cholesterol
+      - fasting_bs
+      - resting_ecg
+      - max_hr
+      - oldpeak
+      - st_slope
+    demographic:
+      - age
+      - sex
+    lifestyle:
+      - exercise_angina
+
+preprocessing:
+  iterative_imputer_max_iter: 10
+  minmax_range: [0.0, 1.0]
+  use_rfe: false
+  rfe_fraction: 0.8
+  use_pca: false
+  pca_variance: 0.95
+  smote_k_neighbors: 5
+
+graph:
+  metric: "cosine"
+  k: 5
+  threshold: null
+  weighted: true
+  undirected: true
+
+model:
+  gcn_layers: 2
+  hidden_dims: [64, 32]
+  dropout: 0.2
+
+training:
+  optimizer: "adam"
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  epochs: 150
+  patience: 20
+
+cross_validation:
+  outer_folds: 5
+  inner_folds: 5
+
+abo:
+  enabled: true
+  population_size: 8
+  iterations: 8
+  loudness: 0.9
+  pulse_rate: 0.1
+  alpha: 0.95
+  gamma: 0.9
+  frequency_min: 0.0
+  frequency_max: 2.0
+  search_space:
+    learning_rate:
+      type: "log_float"
+      low: 0.0001
+      high: 0.01
+    weight_decay:
+      type: "log_float"
+      low: 0.000001
+      high: 0.001
+    hidden1:
+      type: "categorical"
+      choices: [32, 64, 128]
+    hidden2:
+      type: "categorical"
+      choices: [16, 32, 64]
+    dropout:
+      type: "categorical"
+      choices: [0.1, 0.2, 0.3]
+    epochs:
+      type: "categorical"
+      choices: [100, 150, 200]
+
+statistics:
+  test: "wilcoxon"
+  alpha: 0.05
+  bootstrap_samples: 1000
+
+ablation:
+  enabled: true
+  variants:
+    - full
+    - no_graph
+    - no_fusion
+    - no_abo
+    - euclidean_graph
+    - k3
+    - k5
+    - k7
+
+output:
+  directory: "./outputs"
